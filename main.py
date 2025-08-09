@@ -1,7 +1,7 @@
 import pandas as pd
 from video_analyzer import analyze_video_for_traits
 from model_predictor import load_model, generate_prediction_and_report
-from config import VIDEO_FILE, OUTPUT_FEATURES_CSV, TRAIT_COLUMNS
+from utils.config.config import VIDEO_FILE, OUTPUT_FEATURES_CSV, TRAIT_COLUMNS
 import os
 
 def main():

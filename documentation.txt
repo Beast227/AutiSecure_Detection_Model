@@ -2,14 +2,13 @@
 
 1. Data collection and preprocessing
 2. File structure
-
+3. Predict and save the model
 
 
 --------------To do list-------------------
 
-1. Predict and save the model
-2. Test the model
-3. Start preparing to get the traits from the video
-4. Prepare the data for the traits
-5. Train the model for the traits
-6. Test the model for the traits
+1. Test the model
+2. Start preparing to get the traits from the video
+3. Prepare the data for the traits
+4. Train the model for the traits
+5. Test the model for the traits

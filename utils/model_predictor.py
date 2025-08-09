@@ -70,3 +70,5 @@ def generate_prediction_and_report(features, model):
     else:
         print("  Prediction: NOT AUTISTIC")
         print(f"  Confidence: {prediction_proba[0][0]:.2%} likelihood of not having autism")
+        
+train_and_save_model()

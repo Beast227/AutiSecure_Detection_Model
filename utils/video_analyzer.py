@@ -1,6 +1,6 @@
 import cv2
 import os
-from config import TRAIT_COLUMNS
+from utils.config import TRAIT_COLUMNS
 
 def detect_eye_contact(frame):
     # initialize later
