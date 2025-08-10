@@ -3,7 +3,7 @@ import joblib
 import os
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import train_test_split
-from config import TRAIT_COLUMNS, MODEL_PATH
+from config.config import TRAIT_COLUMNS, MODEL_PATH
 
 # --- Functions for Model Management ---
 def train_and_save_model():
@@ -71,4 +71,3 @@ def generate_prediction_and_report(features, model):
         print("  Prediction: NOT AUTISTIC")
         print(f"  Confidence: {prediction_proba[0][0]:.2%} likelihood of not having autism")
         
-train_and_save_model()
