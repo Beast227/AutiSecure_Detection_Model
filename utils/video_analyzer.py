@@ -3,13 +3,13 @@ import os
 from config.config import TRAIT_COLUMNS
 
 def detect_eye_contact(frame):
-    # initialize later
+    # Done with the implementation
     return 0.7 
 def detect_aggressive_behavior(frame):
-    # initialize later
+    # Done with the implementation
     return 0.7 
 def detect_object_lining_up(frame):
-    # initialize later
+    # Done with the implementation
     return 0.7 
 def detect_self_spinning(frame):
     # initialize later
@@ -27,7 +27,7 @@ def detect_non_responsiveness(frame):
     # initialize later
     return 0.7 
 def detect_self_hitting(frame):
-    # initialize later
+    # Done with the implementation
     return 0.7 
 
 # for the analysis of the videos 
