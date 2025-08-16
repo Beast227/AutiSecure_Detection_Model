@@ -3,6 +3,7 @@
 1. Data collection and preprocessing
 2. File structure
 3. Predict and save the model
+4. Finished detection of aggression and object lining up
 
 
 --------------To do list-------------------
@@ -12,3 +13,29 @@
 3. Prepare the data for the traits
 4. Train the model for the traits
 5. Test the model for the traits
+
+
+
+----------------Working-------------------
+ -> Detection of eye contact or gaze
+    - It detects the eye centering with the help of face center horizontally and vertically.
+    - Then it checks weather the gaze ratio is above the threshold or not.
+    - It return 1 if the gaze ratio exceeds the threshold otherwise 0.
+    - OpenCV is used to read the video files and google's mediapipe is used to detect the gaze.
+    - The gaze ratio is calculated by dividing the horizontal distance between the face center and the eye center
+      by the horizontal distance between the face center and the left eye center.
+
+ -> Detection of aggressive behavior
+    - It detects the aggressive behavior with the help of these characteristics
+        1. Fast motion like push or punch
+        2. Aggressive emotion
+    - Fast motion is calculated with the help of pythagoras theorem which helps in calculating the distance between old positon
+      and the new postion of the face.
+    - Aggressive emotion is detected with the help of FER pretrained model.
+    - The only drawback of this algorithm is it takes good amount of time to process the video and give the results
+
+-> Detection of object lining up
+    - It detects the object lining up with the help of these characteristics
+        1. Checks weather there is any object mostly toy
+        2. Checks weather the object is in the line of sight of the person
+        3. If the object is in symmetry with other objects or not
