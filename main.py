@@ -3,7 +3,10 @@ from utils.model_predictor import train_and_save_model
 # from video_analyzer import analyze_video_for_traits
 # from model_predictor import load_model, generate_prediction_and_report
 from config.config import VIDEO_FILE, OUTPUT_FEATURES_CSV, TRAIT_COLUMNS
-import os
+from utils.video_analyzer import analyze_video_for_traits
+import sys, os
+sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+
 
 # def main():
 #     """
@@ -27,4 +30,8 @@ import os
 #         generate_prediction_and_report(video_features, predictor_model)
 
 
-train_and_save_model()
+# train_and_save_model()
+VIDEO_FILE = "1.mp4"
+
+if os.path.exists(VIDEO_FILE):
+    analyze_video_for_traits(VIDEO_FILE)
