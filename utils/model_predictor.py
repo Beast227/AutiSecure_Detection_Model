@@ -44,30 +44,40 @@ def load_model():
         return joblib.load(MODEL_PATH)
     else:
         return train_and_save_model()
+        
 
-# --- Function for Prediction and Reporting ---
 def generate_prediction_and_report(features, model):
     """
-    Uses the trained model to predict and generate a report.
+    Uses the trained model to predict and generate a report dictionary.
+    This version RETURNS a dictionary instead of printing.
     """
     print("\n--- Generating Patient Report ---")
-
+    
+    # It's crucial that the feature order matches the model's training order.
+    # Assuming TRAIT_COLUMNS is accessible or defined as below.
+    TRAIT_COLUMNS = list(features.keys()) 
     input_data = pd.DataFrame([features], columns=TRAIT_COLUMNS)
     
     prediction = model.predict(input_data)
     prediction_proba = model.predict_proba(input_data)
     
-    print("-" * 30)
-    print("Detected Behavioral Traits:")
-    for trait, score in features.items():
-        print(f"  - {trait:<40}: {score:.2f}")
-    
-    print("-" * 30)
-    print("Autism Likelihood Prediction:")
     if prediction[0] == 1:
-        print("  Prediction: AUTISTIC")
-        print(f"  Confidence: {prediction_proba[0][1]:.2%} likelihood of autism")
+        result = {
+            "prediction": "AUTISTIC",
+            "confidence": f"{prediction_proba[0][1]:.2%}",
+            "likelihood_score": prediction_proba[0][1]
+        }
     else:
-        print("  Prediction: NOT AUTISTIC")
-        print(f"  Confidence: {prediction_proba[0][0]:.2%} likelihood of not having autism")
+        result = {
+            "prediction": "NOT AUTISTIC",
+            "confidence": f"{prediction_proba[0][0]:.2%}",
+            "likelihood_score": prediction_proba[0][0]
+        }
         
+    # Combine trait scores and the final prediction into one report
+    report = {
+        "detected_traits": features,
+        "final_prediction": result
+    }
+    
+    return report

@@ -1,37 +1,68 @@
-import pandas as pd
-from utils.model_predictor import train_and_save_model
-# from video_analyzer import analyze_video_for_traits
-# from model_predictor import load_model, generate_prediction_and_report
-from config.config import VIDEO_FILE, OUTPUT_FEATURES_CSV, TRAIT_COLUMNS
+import os
+from fastapi import FastAPI, HTTPException
+from pydantic import BaseModel
+
+# --- 1. Import your project's components ---
 from utils.video_analyzer import analyze_video_for_traits
-import sys, os
-sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+from utils.model_predictor import load_model, generate_prediction_and_report
+
+# --- 2. Define the expected request data structure using Pydantic ---
+# This provides automatic data validation. The API will only accept
+# requests that have a 'video_path' field which is a string.
+class VideoRequest(BaseModel):
+    video_path: str
+
+# --- 3. Initialize the FastAPI application ---
+app = FastAPI(
+    title="Autism Trait Detection API",
+    description="An API to analyze videos for behavioral traits and predict autism likelihood.",
+    version="1.0.0"
+)
+
+# --- 4. Load the ML model once when the server starts ---
+# This is highly efficient as the model stays loaded in memory.
+print("--- Initializing Prediction Model (this may take a moment)... ---")
+PREDICTOR_MODEL = load_model()
+print("--- Model Initialized. API is ready to accept requests. ---")
 
 
-# def main():
-#     """
-#     Main function to orchestrate the entire video analysis and prediction pipeline.
-#     """
-#     # 1. Load the machine learning model
-#     predictor_model = load_model()
+@app.post("/analyze", tags=["Analysis"])
+def analyze_video_endpoint(request: VideoRequest):
+    """
+    Receives a path to a video file, runs the full analysis pipeline,
+    and returns a comprehensive report as a JSON object.
+    """
+    video_file_path = request.video_path
 
-#     # 2. Analyze the video to get the features
-#     video_features = analyze_video_for_traits(VIDEO_FILE)
+    # Validate that the file path provided by the Node.js server actually exists
+    if not os.path.exists(video_file_path):
+        # FastAPI handles this by sending a clean 404 Not Found error
+        raise HTTPException(
+            status_code=404, 
+            detail=f"Video file not found at the provided path: {video_file_path}"
+        )
 
-#     if video_features:
-#         # 3. Save the extracted features to a CSV
-#         video_id = os.path.basename(VIDEO_FILE)
-#         features_df = pd.DataFrame([video_features], columns=TRAIT_COLUMNS)
-#         features_df.insert(0, 'Video_ID', video_id)
-#         features_df.to_csv(OUTPUT_FEATURES_CSV, index=False)
-#         print(f"\nExtracted features saved to '{OUTPUT_FEATURES_CSV}'.")
+    try:
+        # --- Run your existing analysis pipeline ---
+        print(f"Starting analysis for: {video_file_path}")
+        video_features = analyze_video_for_traits(video_file_path)
 
-#         # 4. Generate the prediction and report
-#         generate_prediction_and_report(video_features, predictor_model)
+        if video_features:
+            # Generate the final report using the modified function
+            report = generate_prediction_and_report(video_features, PREDICTOR_MODEL)
+            print(f"Analysis complete for: {video_file_path}")
+            # FastAPI automatically converts the dictionary to a JSON response
+            return report
+        else:
+            raise HTTPException(
+                status_code=500, 
+                detail="Video analysis failed to return any features."
+            )
 
-
-# train_and_save_model()
-VIDEO_FILE = "1.mp4"
-
-if os.path.exists(VIDEO_FILE):
-    analyze_video_for_traits(VIDEO_FILE)
+    except Exception as e:
+        # Catch any other unexpected errors during the process
+        print(f"An unexpected error occurred during analysis: {e}")
+        raise HTTPException(
+            status_code=500, 
+            detail=f"An internal server error occurred: {str(e)}"
+        )
