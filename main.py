@@ -79,3 +79,14 @@ def analyze_video_endpoint(request: VideoRequest):
             status_code=500, 
             detail=f"An internal server error occurred: {str(e)}"
         )
+    
+    finally: 
+        if 'tmp_path' in locals() and os.path.exists(tmp_path):
+            os.remove(tmp_path)
+            print(f"Deleted temporary file: {tmp_path}")
+
+
+@app.get("/ping", tags=["Health"])
+def ping():
+    return {"status": "alive"}
+
