@@ -1,5 +1,7 @@
 import os
 from fastapi import FastAPI, HTTPException
+import tempfile
+import requests
 from pydantic import BaseModel
 
 # --- 1. Import your project's components ---
@@ -10,7 +12,7 @@ from utils.model_predictor import load_model, generate_prediction_and_report
 # This provides automatic data validation. The API will only accept
 # requests that have a 'video_path' field which is a string.
 class VideoRequest(BaseModel):
-    video_path: str
+    videoUrl: str
 
 # --- 3. Initialize the FastAPI application ---
 app = FastAPI(
@@ -32,25 +34,36 @@ def analyze_video_endpoint(request: VideoRequest):
     Receives a path to a video file, runs the full analysis pipeline,
     and returns a comprehensive report as a JSON object.
     """
-    video_file_path = request.video_path
-
-    # Validate that the file path provided by the Node.js server actually exists
-    if not os.path.exists(video_file_path):
-        # FastAPI handles this by sending a clean 404 Not Found error
-        raise HTTPException(
-            status_code=404, 
-            detail=f"Video file not found at the provided path: {video_file_path}"
-        )
+    videoUrl = request.videoUrl
 
     try:
+
+        # --- Step 1: Download video into a temp file ---
+        with tempfile.NamedTemporaryFile( delete = False, suffix = ".mp4") as tmp_file:
+            response = requests.get(videoUrl, stream = True)
+            if response.status_code != 200:
+                raise HTTPException(
+                    status_code=400,
+                    detail=f"Failed to download video from URL: {videoUrl}"
+                )
+            
+            for chunk in response.iter_content(chunk_size = 8192):
+                if chunk: 
+                    tmp_file.write(chunk)
+
+            tmp_path = tmp_file.name
+        
+        print(f"Download video to: {tmp_path}")
+
+
         # --- Run your existing analysis pipeline ---
-        print(f"Starting analysis for: {video_file_path}")
-        video_features = analyze_video_for_traits(video_file_path)
+        print(f"Starting analysis for: {tmp_path}")
+        video_features = analyze_video_for_traits(tmp_path)
 
         if video_features:
             # Generate the final report using the modified function
             report = generate_prediction_and_report(video_features, PREDICTOR_MODEL)
-            print(f"Analysis complete for: {video_file_path}")
+            print(f"Analysis complete for: {tmp_path}")
             # FastAPI automatically converts the dictionary to a JSON response
             return report
         else:
