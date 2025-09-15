@@ -3,7 +3,6 @@ import numpy as np
 import librosa
 from pydub import AudioSegment, silence
 from moviepy.editor import VideoFileClip
-import webrtcvad
 
 def detect_non_typical_language(
     video_path,

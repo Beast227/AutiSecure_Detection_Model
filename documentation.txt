@@ -4,17 +4,16 @@
 2. File structure
 3. Predict and save the model
 4. Finished detection of aggression and object lining up
-
-
---------------To do list-------------------
-
-1. Test the model
 2. Start preparing to get the traits from the video
+
 3. Prepare the data for the traits
+1. Test the model
 4. Train the model for the traits
 5. Test the model for the traits
 
 
+--------------To do list-------------------
+1
 
 ----------------Working-------------------
  -> Detection of eye contact or gaze
@@ -39,3 +38,27 @@
         1. Checks weather there is any object mostly toy
         2. Checks weather the object is in the line of sight of the person
         3. If the object is in symmetry with other objects or not
+
+-> Detect hyper or hypo reactivity
+    - Hyper reactivity is sudden spikes in motion
+    - Hypo reactivity is long streches of very low motion
+    - It reads the video with the help of openCV, skips frames to improve performance
+    - Calculates motion scores if its below or above the threshold for hypo and hyper reactivity   
+    - Based on the continuous streaks for the hypo or hyper reactivity the output will be 0 or 1 (checks frames after some frame skip)
+    - Limitations: 
+        - Lighting conditions can affect the output
+        - If any pet is visible in the video that can also affect the video
+
+-> Detect non responsiveness 
+    - The concept of non-responsiveness detection in videos is about identifying prolonged periods where a person shows little to no movement and no visible signs of engagement (like face detection). This is done by analyzing both motion (using optical flow to see if the body is moving) and face engagement (using a face detector). If the video shows very low movement (stillness) and no face is detected for a sustained duration (e.g., 8 seconds), it is flagged as non-responsiveness. This approach is useful in areas like health monitoring, therapy, and safety systems, where detecting if someone has become unresponsive is important.
+
+-> Detect no typical language
+    - This detects two types of a way to speak.
+        1. Echolalia - Repetition of same words
+        2. Monotony - Lack of tone while speaking
+    - First it extracts the audio from the video and saves it as WAV file
+    - Splits the audio into speech segments with the help of silences in between.
+    - Converts each audio speech into numeric fingerprint 
+    - Compares fingerprint with the cosine of similarity to detect similarity in words
+    - checks variablility in speech durations and silence gaps
+    - cleans up temp and return a dictionary { 'echolalia': 0/1, 'monotony': 0/1 }
