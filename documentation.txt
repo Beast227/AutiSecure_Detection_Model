@@ -33,12 +33,6 @@
     - Aggressive emotion is detected with the help of FER pretrained model.
     - The only drawback of this algorithm is it takes good amount of time to process the video and give the results
 
--> Detection of object lining up
-    - It detects the object lining up with the help of these characteristics
-        1. Checks weather there is any object mostly toy
-        2. Checks weather the object is in the line of sight of the person
-        3. If the object is in symmetry with other objects or not
-
 -> Detect hyper or hypo reactivity
     - Hyper reactivity is sudden spikes in motion
     - Hypo reactivity is long streches of very low motion
@@ -62,3 +56,33 @@
     - Compares fingerprint with the cosine of similarity to detect similarity in words
     - checks variablility in speech durations and silence gaps
     - cleans up temp and return a dictionary { 'echolalia': 0/1, 'monotony': 0/1 }
+
+-> Detect object lining up
+    - Reads the video and gets the total frame count and fps from cv2
+    - Detects objects from the video with the help of pretrained models
+    - finds the center of the objects
+    - checks if it can form a straight line
+    - checks if they are evenly spaced
+    - if the pattern happens accross frequent frames then it says lining up detected
+
+-> Detect self spinning
+    - Reads the video frame by frame
+    - Detects body landmarks using mediapipe
+    - compute torso angle (rotation of the body)
+    - compute torso angle across frames
+    - if many frames in a row shows large rotations then classify it as self spinning
+    - return true if spinning is detected
+
+-> Detect self hitting
+    - Reads the video 
+    - Detects the position of wrists and nose
+    - Measures distance between hands and head
+    - if hand is very close to the head marks as a possible hit
+    - Needs 10 consecutive hits for confirming
+    - Returns 1 if self hitting is detected
+
+-> Detect upper limb stereotypes
+    - Reads the video
+    - Track wrists relative to the shoulders/head
+    - for each frames it checks if the wrists are moving fast or are they close to the head/body or repetitive motion back and forth
+    - if many frames satisfy all three then uppen stereotype limb detected
