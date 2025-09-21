@@ -2,6 +2,7 @@ prompt.txt
 venv
 /utils/detection/SelfHittingDetection/videos
 /utils/detection/*.mp4
+*.mp4
 
 # Created by https://gitignore.org
 # Python.gitignore
