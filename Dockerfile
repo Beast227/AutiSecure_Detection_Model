@@ -1,5 +1,5 @@
 # Use Python 3.10 (works well with mediapipe / tensorflow)
-FROM python:3.12.2
+FROM python:3.10-slim
 
 # Prevent Python from writing .pyc files and buffer stdout/stderr
 ENV PYTHONDONTWRITEBYTECODE=1

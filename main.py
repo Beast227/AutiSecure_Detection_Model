@@ -6,7 +6,9 @@ from pydantic import BaseModel
 
 # --- 1. Import your project's components ---
 from utils.video_analyzer import analyze_video_for_traits
-from utils.model_predictor import load_model, generate_prediction_and_report
+from utils.model_predictor import load_model, generate_prediction_and_report, train_and_save_model
+
+train_and_save_model('./dataset/trained_labels.csv', './dataset/tested_labels.csv');
 
 # --- 2. Define the expected request data structure using Pydantic ---
 # This provides automatic data validation. The API will only accept
@@ -26,6 +28,8 @@ app = FastAPI(
 print("--- Initializing Prediction Model (this may take a moment)... ---")
 PREDICTOR_MODEL = load_model()
 print("--- Model Initialized. API is ready to accept requests. ---")
+
+
 
 
 @app.post("/analyze", tags=["Analysis"])
