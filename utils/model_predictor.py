@@ -98,31 +98,67 @@ def load_model():
         raise FileNotFoundError("Model not found. Please train a model first.")
 
 
-def generate_prediction_and_report(features, model, metrics=None):
-    """Generate a prediction report for a single patient/sample."""
+def generate_prediction_and_report(features, model_data=None):
+    """
+    Generates a detailed prediction report for a single patient/sample.
+    Automatically handles both (model, metrics) tuple or direct load from disk.
+    """
+
     print("\n--- Generating Patient Report ---")
 
-    input_data = pd.DataFrame([features], columns=TRAIT_COLUMNS)
-    prediction = model.predict(input_data)
-    prediction_proba = model.predict_proba(input_data)
-
-    if prediction[0] == 1:
-        result = {
-            "prediction": "AUTISTIC",
-            "confidence": f"{prediction_proba[0][1]:.2%}",
-            "likelihood_score": float(prediction_proba[0][1])
-        }
+    # --- Load model and metadata properly ---
+    if model_data is None:
+        if not os.path.exists(MODEL_PATH):
+            raise FileNotFoundError("Model file not found. Please train a model first.")
+        data = joblib.load(MODEL_PATH)
+        model = data["model"]
+        metrics = data.get("metrics", {})
+        model_features = data.get("features", [])
     else:
-        result = {
-            "prediction": "NOT AUTISTIC",
-            "confidence": f"{prediction_proba[0][0]:.2%}",
-            "likelihood_score": float(prediction_proba[0][0])
-        }
+        # Handle both tuple (model, metrics) and dict from joblib
+        if isinstance(model_data, tuple):
+            model, metrics = model_data
+            # Load feature info from saved model
+            saved = joblib.load(MODEL_PATH)
+            model_features = saved.get("features", [])
+        elif isinstance(model_data, dict):
+            model = model_data["model"]
+            metrics = model_data.get("metrics", {})
+            model_features = model_data.get("features", [])
+        else:
+            raise TypeError("Invalid model_data format. Expected tuple or dict.")
+
+    # --- Convert features to DataFrame ---
+    input_df = pd.DataFrame([features])
+
+    # --- Align input with model feature set ---
+    missing_features = [f for f in model_features if f not in input_df.columns]
+    for f in missing_features:
+        input_df[f] = 0  # default fill for missing traits
+
+    input_df = input_df[model_features]
+
+    # --- Make prediction ---
+    prediction = model.predict(input_df)
+    prediction_proba = model.predict_proba(input_df)[0]
+
+    # --- Build report ---
+    predicted_label = "AUTISTIC" if prediction[0] == 1 else "NOT AUTISTIC"
+    confidence = prediction_proba[1] if prediction[0] == 1 else prediction_proba[0]
 
     report = {
         "detected_traits": features,
-        "final_prediction": result,
-        "model_performance": metrics if metrics else "No metrics available"
+        "final_prediction": {
+            "label": predicted_label,
+            "confidence": f"{confidence:.2%}",
+            "likelihood_score": round(float(confidence), 4)
+        },
+        "model_info": {
+            "used_features": model_features,
+            "performance": metrics if metrics else "No metrics available"
+        }
     }
 
+    print(f"✅ Prediction: {predicted_label} (Confidence: {confidence:.2%})")
     return report
+
